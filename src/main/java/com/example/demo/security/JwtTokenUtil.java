@@ -40,4 +40,8 @@ public class JwtTokenUtil {
         }
     }
 
+    public long getValidityMillis() {
+        return validityMillis;
+    }
+
 }

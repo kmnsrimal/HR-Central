@@ -1,11 +1,13 @@
 package com.example.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Entity
@@ -26,7 +28,9 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    private String primaryRole;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "primary_role", referencedColumnName = "id")
+    private Role primaryRole;
 
     private Boolean isActive;
     private Boolean isVisible;
@@ -36,8 +40,11 @@ public class User {
     private String team;
     private String pictureUrl;
 
-    private String integrationId;
-    private String integrationEntityId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "integration_id", referencedColumnName = "id")
+    private Integration integration;
+
+    private Integer integrationEntityId;
 
     private Boolean departmentHead;
 
@@ -45,4 +52,16 @@ public class User {
 
     @Column(name = "remember_token", unique = true)
     private String rememberToken;
+
+    @OneToMany(
+            mappedBy = "user",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    @JsonManagedReference
+    private List<Pto> ptos = new ArrayList<>();
+
+
+
 }

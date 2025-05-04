@@ -55,7 +55,7 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/api/auth/**", "/api/public/**").permitAll()
+                .antMatchers("/api/auth/**", "/public/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
@@ -133,7 +133,7 @@ public class SecurityConfig {
             // instead of List.of(...)
             config.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
             config.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","OPTIONS"));
-            config.setAllowedHeaders(Arrays.asList("Content-Type","Authorization"));
+            config.setAllowedHeaders(Arrays.asList("Content-Type","Authorization","X-Accept-Case-Type","*"));
             config.setAllowCredentials(true);
 
             UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

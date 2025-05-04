@@ -45,28 +45,28 @@ public class AuthController {
         this.jwtUtil = jwtUtil;
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody User user) {
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already exists");
-        }
-
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setPrimaryRole("USER");
-        user.setIsActive(false); // Wait for verification
-        user.setDepartmentHead(false); // default
-        String token = UUID.randomUUID().toString();
-        user.setRememberToken(token);
-
-        // 4) set created timestamp (if your entity has it)
-
-        // 5) save & send email
-        userRepository.save(user);
-        emailService.sendVerificationEmail(user.getEmail(), token);
-
-
-        return ResponseEntity.ok("Registration successful. Please check your email to verify.");
-    }
+//    @PostMapping("/register")
+//    public ResponseEntity<String> register(@RequestBody User user) {
+//        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+//            return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already exists");
+//        }
+//
+//        user.setPassword(passwordEncoder.encode(user.getPassword()));
+//        user.setPrimaryRole("USER");
+//        user.setIsActive(false); // Wait for verification
+//        user.setDepartmentHead(false); // default
+//        String token = UUID.randomUUID().toString();
+//        user.setRememberToken(token);
+//
+//        // 4) set created timestamp (if your entity has it)
+//
+//        // 5) save & send email
+//        userRepository.save(user);
+//        emailService.sendVerificationEmail(user.getEmail(), token);
+//
+//
+//        return ResponseEntity.ok("Registration successful. Please check your email to verify.");
+//    }
 
     @GetMapping("/verify")
     public ResponseEntity<String> verify(@RequestParam String token) {
@@ -113,8 +113,21 @@ public class AuthController {
         Authentication auth = authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(req.getEmail(), req.getPassword())
         );
+
+        // 2) Generate JWT
         String jwt = jwtUtil.generateToken(auth.getName());
-        return ResponseEntity.ok(new AuthResponse(jwt));
+
+        // 3) Compute expires_in in seconds
+        long expiresInSeconds = jwtUtil.getValidityMillis() / 1_000;
+
+        // 4) Build the response
+        AuthResponse response = new AuthResponse(
+                jwt,
+                expiresInSeconds,
+                "Bearer"
+        );
+
+        return ResponseEntity.ok(response);
     }
 }
 
